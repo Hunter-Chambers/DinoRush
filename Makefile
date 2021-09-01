@@ -1,5 +1,2 @@
-run		:	main.py
-	./main.py ; rm -rf src/__pycache__/
-
-clean	:
-	rm -rf src/__pycache__/
+run		:	dinorush.py
+	./dinorush.py ; rm -rf src/__pycache__/

@@ -1,35 +1,29 @@
 import pygame
 
 
-class Tileset:
-    def __init__(self, filename, width, height, rows, cols):
-        #image = pygame.transform.scale(pygame.image.load(filename).convert(), (640, 384))
-        image = pygame.transform.scale(pygame.image.load(filename).convert(), (480, 288))
-        self.tile_table = []
+tile_table = {}
+
+
+def load_tileset(filename, tile_names, width, height, rows, cols, scale):
+    width *= scale
+    height *= scale
+    image = pygame.transform.scale(pygame.image.load(filename), (cols * width, rows * height))
+
+    name = 0
+
+    for tile_y in range(0, rows):
 
         for tile_x in range(0, cols):
-            line = []
-            self.tile_table.append(line)
 
-            for tile_y in range(0, rows):
+            if (tile_names[name] != 'PASS'):
                 rect = (tile_x * width, tile_y * height, width, height)
-                line.append(image.subsurface(rect))
-            # end for
+                tile_table[tile_names[name]] = image.subsurface(rect)
+            # end if
+
+            name += 1
 
         # end for
-    # end __init__
 
-    def get_tile(self, x, y):
-        return self.tile_table[x][y]
+    # end for
 
-    # end get_tile
-
-    def draw(self, screen):
-        for x, row in enumerate(self.tile_table):
-            for y, tile in enumerate(row):
-                screen.blit(tile, (x * 72, y * 72))
-            # end for
-        # end for
-    # end draw
-
-# end Tileset class
+# end load_tileset
