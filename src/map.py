@@ -1,8 +1,10 @@
 import pygame
 
 from src.tileset import *
+from src.constants import *
 
 
+current_map = pygame.Surface(WINDOW_SIZE)
 game_map = {}
 tile_rects = []
 
@@ -76,19 +78,20 @@ def load_map(filename):
         # end if
     # end for
 
-# end load_map
-
-def draw_map(screen, layers):
     if (extras):
         for extra in extras:
-            screen.blit(extra[0], extra[1])
+            current_map.blit(extra[0], extra[1])
         # end for
     # end if
 
-    for layer in layers:
+    for layer in list(game_map.keys()):
         for tile in game_map[layer]:
-            screen.blit(tile_table[tile[0]], tile[1])
+            current_map.blit(tile_table[tile[0]], tile[1])
         # end for
     # end for
 
+# end load_map
+
+def draw_map(screen):
+    screen.blit(current_map, (0,0))
 # end draw_map
