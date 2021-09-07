@@ -1,2 +1,2 @@
 run		:	dinorush.py
-	./dinorush.py ; rm -rf src/__pycache__/
+	python dinorush.py ; rm -rf src/__pycache__/

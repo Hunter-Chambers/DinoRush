@@ -1,81 +1,112 @@
 import pygame
+from pygame.locals import *
 
-from dinorush import collision_test
-from src.map import tile_rects
-from src.constants import *
-
-
-#players = []
-
-sprint_velocity = 0
-
-this_player_img = pygame.image.load('assets/animations/jump/jump_0.png')
-width = this_player_img.get_width()
-height = this_player_img.get_height()
-this_player_img = pygame.transform.scale(this_player_img, (width * 3, height * 3))
-
-this_player_moving_right = False
-this_player_moving_left = False
-
-this_player_air_timer = 0
-
-this_player_location = [0,0]
-this_player_y_momentum = 0
-
-this_player_rect = pygame.Rect(this_player_location[0],
-                               this_player_location[1],
-                               this_player_img.get_width(),
-                               this_player_img.get_height())
+from src import constants, engine
 
 
-def this_player_move():
-    global this_player_y_momentum, this_player_air_timer
+class Player:
 
-    collision_types = {'top':False,'bottom':False,'right':False,'left':False}
+    ####################################################
+    ### CONSTRUCTOR
+    ####################################################
+    def __init__(self, img_path, img_scale):
+        self.__img = pygame.image.load('assets/animations/' + img_path)
+        self.__img = pygame.transform.scale(self.__img, (self.__img.get_width() * img_scale, self.__img.get_height() * img_scale))
 
-    if (this_player_y_momentum > 18):
-        this_player_y_momentum = 18
-    # end if
+        self.__moving_right = False
+        self.__moving_left = False
+        self.__sprint_vel = 0
+        self.__air_timer = 0
+        self.__location = [0,0]
+        self.__y_momentum = 0
 
-    movement = [0,this_player_y_momentum]
-    if (this_player_moving_right and this_player_rect.x + this_player_rect.width < WINDOW_SIZE[0]):
-        movement[0] = PLAYER_VELOCITY + sprint_velocity
-    if (this_player_moving_left and this_player_rect.x > 0):
-        movement[0] = -PLAYER_VELOCITY - sprint_velocity
-    # end if
+        self.__rect = pygame.Rect(self.__location[0],
+                                  self.__location[1],
+                                  self.__img.get_width(),
+                                  self.__img.get_height())
+    # end init
 
 
-    this_player_rect.x += movement[0]
-    hit_list = collision_test(this_player_rect, tile_rects)
-    for tile in hit_list:
-        if (movement[0] > 0):
-            this_player_rect.right = tile.left
-            collision_types['right'] = True
-        elif (movement[0] < 0):
-            this_player_rect.left = tile.right
-            collision_types['left'] = True
+    ####################################################
+    ### GETTERS
+    ####################################################
+    def get_rect(self):
+        return self.__rect
+    # end get_rect
+
+
+    ####################################################
+    ### INSTANCE METHODS
+    ####################################################
+    def move(self, tile_rects):
+        if (self.__y_momentum > 18):
+            self.__y_momentum = 18
         # end if
-    # end for
 
-    this_player_rect.y += movement[1]
-    this_player_air_timer += 1
-    hit_list = collision_test(this_player_rect, tile_rects)
-    for tile in hit_list:
-        if (movement[1] > 0):
-            this_player_rect.bottom = tile.top
-            collision_types['bottom'] = True
-            this_player_y_momentum = 0
-            this_player_air_timer = 0
-        elif (movement[1] < 0):
-            this_player_rect.top = tile.bottom
-            collision_types['top'] = True
-            this_player_y_momentum = 0
+        movement = [0,self.__y_momentum]
+        if (self.__moving_right and self.__rect.x + self.__rect.width < constants.WINDOW_SIZE[0]):
+            movement[0] = constants.PLAYER_VELOCITY + self.__sprint_vel
+        if (self.__moving_left and self.__rect.x > 0):
+            movement[0] = -constants.PLAYER_VELOCITY - self.__sprint_vel
         # end if
-    # end for
 
-    return collision_types
-# end move
+        self.__rect.x += movement[0]
+        hit_list = engine.collision_test(self.__rect, tile_rects)
+        for tile in hit_list:
+            if (movement[0] > 0):
+                self.__rect.right = tile.left
+            elif (movement[0] < 0):
+                self.__rect.left = tile.right
+            # end if
+        # end for
 
-def draw_player(screen):
-    screen.blit(this_player_img, this_player_location)
-# end draw_player
+        self.__rect.y += movement[1]
+        self.__air_timer += 1
+        hit_list = engine.collision_test(self.__rect, tile_rects)
+        for tile in hit_list:
+            if (movement[1] > 0):
+                self.__rect.bottom = tile.top
+                self.__y_momentum = 0
+                self.__air_timer = 0
+            elif (movement[1] < 0):
+                self.__rect.top = tile.bottom
+                self.__y_momentum = 0
+            # end if
+        # end for
+    # end move
+
+    def handle_events(self, events):
+        for event in events:
+            if (event.type == pygame.KEYDOWN):
+                if (event.key == K_d):
+                    self.__moving_right = True
+                elif (event.key == K_a):
+                    self.__moving_left = True
+                elif (event.key == K_SPACE and self.__air_timer < 6):
+                    self.__y_momentum = -14
+                elif (event.key == K_LSHIFT and self.__air_timer < 6):
+                    self.__sprint_vel = 3
+                # end if
+            elif (event.type == pygame.KEYUP):
+                if (event.key == K_d):
+                    self.__moving_right = False
+                elif (event.key == K_a):
+                    self.__moving_left = False
+                elif (event.key == K_LSHIFT):
+                    self.__sprint_vel = 0
+                # end if
+            # end if
+        # end for
+    # end handle_events
+
+    def update(self, tile_rects):
+        self.__y_momentum += 0.5
+        self.move(tile_rects)
+        self.__location[0] = self.__rect.x
+        self.__location[1] = self.__rect.y
+    # end update
+
+    def draw(self):
+        constants.SCREEN.blit(self.__img, self.__location)
+    # end draw_player
+# end Player class
