@@ -10,6 +10,8 @@ class Player:
     ### CONSTRUCTOR
     ####################################################
     def __init__(self, img_path, img_scale):
+        self.__img_path = img_path
+
         self.__img = pygame.image.load('assets/animations/' + img_path)
         self.__img = pygame.transform.scale(self.__img, (self.__img.get_width() * img_scale, self.__img.get_height() * img_scale))
 
@@ -33,6 +35,14 @@ class Player:
     def get_rect(self):
         return self.__rect
     # end get_rect
+
+
+    ####################################################
+    ### SETTERS
+    ####################################################
+    def set_id(self, id):
+        self.set_id = id
+    # end set_id
 
 
     ####################################################
@@ -104,6 +114,10 @@ class Player:
         self.move(tile_rects)
         self.__location[0] = self.__rect.x
         self.__location[1] = self.__rect.y
+
+        constants.location = self.__location
+        constants.img = self.__img_path
+        constants.size = self.__rect.size
     # end update
 
     def draw(self):

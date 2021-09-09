@@ -17,14 +17,11 @@ if __name__ == "__main__":
     pygame.display.set_caption('Dino Rush!')
     pygame.display.set_icon(pygame.image.load('assets/imgs/title_icon.png'))
 
-    at_main_menu = True
-    in_game = False
-
     level = game_map.Game_Map('main_menu_map.txt')
     main_menu = menus.Main_Menu()
 
     while True:
-        while (at_main_menu):
+        while (main_menu.get_at_main_menu()):
             events = pygame.event.get()
 
             for event in events:
@@ -45,6 +42,9 @@ if __name__ == "__main__":
         ##################################################################
         level = game_map.Game_Map('main_menu_map.txt')
         character = player.Player('jump/jump_0.png', 3)
+        character.set_id(main_menu.get_connection_return_message())
+        main_menu.set_connection_return_message('')
+        in_game = True
         ##################################################################
 
         while (in_game):

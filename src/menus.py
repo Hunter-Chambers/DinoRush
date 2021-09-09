@@ -2,7 +2,7 @@ import pygame
 from pygame.locals import *
 
 import sys
-from src import constants
+from src import constants, connection
 
 
 class Cursor:
@@ -48,6 +48,7 @@ class Main_Menu:
     ### CONSTRUCTOR
     ####################################################
     def __init__(self):
+        self.__at_main_menu = True
         self.__option = 1
 
         self.__main_options_img = pygame.image.load('assets/imgs/main_options.png')
@@ -57,7 +58,30 @@ class Main_Menu:
         self.__location = (main_options_rect.x, main_options_rect.y)
 
         self.__cursor = Cursor([self.__location[0] - 20, self.__location[1] - 5])
+
+        self.__connection_return_msg = ''
+        self.__failed_to_connect_img = pygame.image.load('assets/imgs/Failed_to_connect.png')
     # end init
+
+
+    ####################################################
+    ### GETTERS
+    ####################################################
+    def get_at_main_menu(self):
+        return self.__at_main_menu
+    # end get_at_main_menu
+
+    def get_connection_return_message(self):
+        return self.__connection_return_msg
+    # end get_at_main_menu
+
+
+    ####################################################
+    ### SETTERS
+    ####################################################
+    def set_connection_return_message(self, msg=''):
+        self.__connection_return_msg = msg
+    # end get_at_main_menu
 
 
     ####################################################
@@ -92,7 +116,8 @@ class Main_Menu:
                     # end if
                 elif (event.key == K_SPACE or event.key == K_RETURN):
                     if (self.__option == 1):
-                        pass
+                        self.__at_main_menu, self.__connection_return_msg = connection.connect_to_server()
+                        pygame.event.clear()
                     elif (self.__option == 2):
                         pass
                     else:
@@ -107,5 +132,8 @@ class Main_Menu:
     def draw(self):
         constants.SCREEN.blit(self.__main_options_img, self.__location)
         self.__cursor.draw()
+        if (self.__connection_return_msg != '' and not 'Player' in self.__connection_return_msg):
+            constants.SCREEN.blit(self.__failed_to_connect_img, self.__location)
+        # end if
     # end draw
 # end Main_Menu class
