@@ -57,10 +57,14 @@ def recv_from_server(client_socket):
             if (not msg):
                 raise socket.error
             # end if
+
+            client_socket.send(msg.encode())
         except socket.error:
             break
         # end try/except
 
+        print(msg)
+        print(type(msg))
         info = json.loads(msg)
 
         img = pygame.transform.scale(pygame.image.load('assets/animations/' + info['img']), info['size'])
@@ -80,6 +84,7 @@ def send_from_client(client_socket):
 
             try:
                 client_socket.send(msg.encode())
+                client_socket.recv(BUFFER_SIZE)
             except socket.error:
                 break
             # end try/except
