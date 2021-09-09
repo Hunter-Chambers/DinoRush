@@ -19,6 +19,9 @@ recv_thread = None
 send_thread = None
 loop = [True]
 
+id = None
 location = None
 img = None
 size = None
+
+players = {}

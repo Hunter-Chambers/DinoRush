@@ -63,12 +63,14 @@ def recv_from_server(client_socket):
             break
         # end try/except
 
-        print(msg)
-        print(type(msg))
         info = json.loads(msg)
+        player_id = list(info.keys())[0]
+        constants.players[player_id] = info[player_id]
 
+        '''
         img = pygame.transform.scale(pygame.image.load('assets/animations/' + info['img']), info['size'])
         constants.SCREEN.blit(img, info['location'])
+        '''
     # end while
 
     client_socket.shutdown(socket.SHUT_RDWR)
@@ -80,7 +82,7 @@ def send_from_client(client_socket):
 
     while(constants.loop[0]):
         if (constants.location):
-            msg = json.dumps({'location':constants.location, 'img':constants.img, 'size':constants.size})
+            msg = json.dumps({constants.id:{'location':constants.location, 'img':constants.img, 'size':constants.size}})
 
             try:
                 client_socket.send(msg.encode())

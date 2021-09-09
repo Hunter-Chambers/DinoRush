@@ -42,7 +42,7 @@ if __name__ == "__main__":
         ##################################################################
         level = game_map.Game_Map('main_menu_map.txt')
         character = player.Player('jump/jump_0.png', 3)
-        character.set_id(main_menu.get_connection_return_message())
+        constants.id = main_menu.get_connection_return_message()
         main_menu.set_connection_return_message('')
         in_game = True
         ##################################################################
@@ -68,6 +68,12 @@ if __name__ == "__main__":
             pygame.draw.rect(constants.SCREEN, (0,0,255), character.get_rect(), 3)
             ##################################################################
             '''
+
+            for player_id in constants.players:
+                img = pygame.transform.scale(pygame.image.load('assets/animations/' + constants.players[player_id]['img']), constants.players[player_id]['size'])
+                constants.SCREEN.blit(img, constants.players[player_id]['location'])
+            # end for
+
             character.draw()
             pygame.display.flip()
             constants.CLOCK.tick(60)
