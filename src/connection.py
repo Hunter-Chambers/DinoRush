@@ -65,19 +65,7 @@ def recv_from_server(client_socket):
 
         info = json.loads(msg)
         player_id = list(info.keys())[0]
-        '''
         constants.players[player_id] = info[player_id]
-        '''
-
-
-        while (constants.cannot_blit):
-            pass
-        # end while
-        constants.cannot_blit = True
-
-
-        img = pygame.transform.scale(pygame.image.load('assets/animations/' + info[player_id]['img']), info[player_id]['size'])
-        constants.SCREEN.blit(img, info[player_id]['location'])
     # end while
 
     client_socket.shutdown(socket.SHUT_RDWR)
@@ -86,6 +74,7 @@ def recv_from_server(client_socket):
 
 def send_from_client(client_socket):
     client_socket.settimeout(None)
+    client_socket.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
 
     while(constants.loop):
         if (constants.location):
