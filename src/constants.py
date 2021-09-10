@@ -17,7 +17,8 @@ PLAYER_VELOCITY = 5
 ####################################################
 recv_thread = None
 send_thread = None
-loop = [True]
+loop = True
+cannot_blit = True
 
 id = None
 location = None

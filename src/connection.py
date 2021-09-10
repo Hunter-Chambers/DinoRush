@@ -51,7 +51,7 @@ def connect_to_server():
 def recv_from_server(client_socket):
     client_socket.settimeout(None)
 
-    while(constants.loop[0]):
+    while(constants.loop):
         try:
             msg = client_socket.recv(BUFFER_SIZE).decode()
             if (not msg):
@@ -65,12 +65,19 @@ def recv_from_server(client_socket):
 
         info = json.loads(msg)
         player_id = list(info.keys())[0]
+        '''
         constants.players[player_id] = info[player_id]
+        '''
 
-        '''
-        img = pygame.transform.scale(pygame.image.load('assets/animations/' + info['img']), info['size'])
-        constants.SCREEN.blit(img, info['location'])
-        '''
+
+        while (constants.cannot_blit):
+            pass
+        # end while
+        constants.cannot_blit = True
+
+
+        img = pygame.transform.scale(pygame.image.load('assets/animations/' + info[player_id]['img']), info[player_id]['size'])
+        constants.SCREEN.blit(img, info[player_id]['location'])
     # end while
 
     client_socket.shutdown(socket.SHUT_RDWR)
@@ -80,7 +87,7 @@ def recv_from_server(client_socket):
 def send_from_client(client_socket):
     client_socket.settimeout(None)
 
-    while(constants.loop[0]):
+    while(constants.loop):
         if (constants.location):
             msg = json.dumps({constants.id:{'location':constants.location, 'img':constants.img, 'size':constants.size}})
 

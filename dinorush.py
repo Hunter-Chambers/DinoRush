@@ -61,6 +61,7 @@ if __name__ == "__main__":
 
             constants.SCREEN.fill(constants.BG_COLOR)
             level.draw()
+            constants.cannot_blit = False
             '''
             ##################################################################
             for rect in level.get_tile_rects():
@@ -69,10 +70,12 @@ if __name__ == "__main__":
             ##################################################################
             '''
 
+            '''
             for player_id in constants.players:
                 img = pygame.transform.scale(pygame.image.load('assets/animations/' + constants.players[player_id]['img']), constants.players[player_id]['size'])
                 constants.SCREEN.blit(img, constants.players[player_id]['location'])
             # end for
+            '''
 
             character.draw()
             pygame.display.flip()
