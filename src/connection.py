@@ -10,7 +10,7 @@ from src import constants
 
 SERVER = "10.0.0.191"
 PORT = 27016
-BUFFER_SIZE = 4096
+BUFFER_SIZE = 2048
 
 
 def connect_to_server():
@@ -27,7 +27,7 @@ def connect_to_server():
             constants.recv_thread = Thread(target=recv_from_server, args=(client_socket,))
             constants.recv_thread.start()
 
-            client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            client_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
             client_socket.settimeout(5)
 
             client_socket.connect((SERVER, PORT))
@@ -50,7 +50,7 @@ def connect_to_server():
 
 def recv_from_server(client_socket):
     client_socket.settimeout(None)
-    client_socket.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
+    #client_socket.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
 
     while(constants.loop):
         try:
@@ -59,7 +59,7 @@ def recv_from_server(client_socket):
                 raise socket.error
             # end if
 
-            client_socket.send(msg.encode())
+            #client_socket.send(msg.encode())
         except socket.error:
             break
         # end try/except
@@ -75,7 +75,7 @@ def recv_from_server(client_socket):
 
 def send_from_client(client_socket):
     client_socket.settimeout(None)
-    client_socket.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
+    #client_socket.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
 
     while(constants.loop):
         if (constants.location):
@@ -83,7 +83,7 @@ def send_from_client(client_socket):
 
             try:
                 client_socket.send(msg.encode())
-                client_socket.recv(BUFFER_SIZE)
+                #client_socket.recv(BUFFER_SIZE)
             except socket.error:
                 break
             # end try/except
