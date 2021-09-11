@@ -50,7 +50,7 @@ def connect_to_server():
 
 def recv_from_server(client_socket):
     client_socket.settimeout(None)
-    #client_socket.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
+    client_socket.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
 
     while(constants.loop):
         try:
@@ -75,7 +75,7 @@ def recv_from_server(client_socket):
 
 def send_from_client(client_socket):
     client_socket.settimeout(None)
-    #client_socket.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
+    client_socket.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
 
     while(constants.loop):
         if (constants.location):
