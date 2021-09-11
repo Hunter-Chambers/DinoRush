@@ -66,6 +66,12 @@ def recv_from_server(client_socket):
 
         info = json.loads(msg)
         player_id = list(info.keys())[0]
+
+        while (constants.cannot_update):
+            pass
+        # end while
+        constants.cannot_update = True
+
         constants.players[player_id] = info[player_id]
     # end while
 

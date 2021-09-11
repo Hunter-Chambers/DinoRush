@@ -25,3 +25,4 @@ img = None
 size = None
 
 players = {}
+cannot_update = True
