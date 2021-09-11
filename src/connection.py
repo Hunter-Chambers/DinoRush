@@ -27,7 +27,7 @@ def connect_to_server():
             constants.recv_thread = Thread(target=recv_from_server, args=(client_socket,))
             constants.recv_thread.start()
 
-            client_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+            client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             client_socket.settimeout(5)
 
             client_socket.connect((SERVER, PORT))
