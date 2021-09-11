@@ -4,6 +4,9 @@ from pygame.locals import *
 from src import constants, engine
 
 
+TEMP_TEST = pygame.transform.scale(pygame.image.load('assets/animations/jump/jump_0.png'), (45,54))
+
+
 class Player:
 
     ####################################################
