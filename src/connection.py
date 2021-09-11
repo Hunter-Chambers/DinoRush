@@ -8,7 +8,7 @@ import pygame
 from src import constants
 
 
-SERVER = "10.0.0.209"
+SERVER = "10.0.0.191"
 PORT = 27016
 BUFFER_SIZE = 2048
 
