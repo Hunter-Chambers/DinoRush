@@ -59,7 +59,7 @@ def recv_from_server(client_socket):
                 raise socket.error
             # end if
 
-            #client_socket.send(msg.encode())
+            client_socket.send(msg.encode())
         except socket.error:
             break
         # end try/except
@@ -83,7 +83,7 @@ def send_from_client(client_socket):
 
             try:
                 client_socket.send(msg.encode())
-                #client_socket.recv(BUFFER_SIZE)
+                client_socket.recv(BUFFER_SIZE)
             except socket.error:
                 break
             # end try/except
