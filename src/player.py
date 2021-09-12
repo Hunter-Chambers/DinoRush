@@ -1,10 +1,9 @@
 import pygame
 from pygame.locals import *
 
-from src import constants, engine
+import socket
 
-
-TEMP_TEST = pygame.transform.scale(pygame.image.load('assets/animations/jump/jump_0.png'), (45,54))
+from src import constants
 
 
 class Player:
@@ -12,42 +11,29 @@ class Player:
     ####################################################
     ### CONSTRUCTOR
     ####################################################
-    def __init__(self, img_path, img_scale):
-        self.__img_path = img_path
+    def __init__(self, dino_color, starting_location):
+        self.__connection = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
+        img_path = dino_color + '/jump/jump_0.png'
+
+        ########################################################
+        # maybe load all possible images
         self.__img = pygame.image.load('assets/animations/' + img_path)
-        self.__img = pygame.transform.scale(self.__img, (self.__img.get_width() * img_scale, self.__img.get_height() * img_scale))
+        self.__img = pygame.transform.scale(self.__img, (45, 54))
+        ########################################################
 
         self.__moving_right = False
         self.__moving_left = False
-        self.__sprint_vel = 0
+        self.__sprinting = False
+        self.__jumping = False
         self.__air_timer = 0
-        self.__location = [0,0]
+        self.__location = starting_location
         self.__y_momentum = 0
 
-        self.__rect = pygame.Rect(self.__location[0],
+        self.__hitbox = pygame.Rect(self.__location[0],
                                   self.__location[1],
-                                  self.__img.get_width(),
-                                  self.__img.get_height())
+                                  45, 54)
     # end init
-
-
-    ####################################################
-    ### GETTERS
-    ####################################################
-    def get_rect(self):
-        return self.__rect
-    # end get_rect
-
-
-    '''
-    ####################################################
-    ### SETTERS
-    ####################################################
-    def set_id(self, id):
-        self.set_id = id
-    # end set_id
-    '''
 
 
     ####################################################
@@ -58,37 +44,53 @@ class Player:
             self.__y_momentum = 18
         # end if
 
-        movement = [0,self.__y_momentum]
-        if (self.__moving_right and self.__rect.x + self.__rect.width < constants.WINDOW_SIZE[0]):
-            movement[0] = constants.PLAYER_VELOCITY + self.__sprint_vel
-        if (self.__moving_left and self.__rect.x > 0):
-            movement[0] = -constants.PLAYER_VELOCITY - self.__sprint_vel
+        movement = [0, self.__y_momentum]
+        if (self.__moving_right and self.__hitbox.x + self.__hitbox.width < constants.WINDOW_SIZE[0]):
+            movement[0] = constants.PLAYER_VELOCITY
+            if (self.__sprinting):
+                movement[0] += constants.SPRINT_VELOCITY
+            # end if
+        if (self.__moving_left and self.__hitbox.x > 0):
+            movement[0] = -constants.PLAYER_VELOCITY
+            if (self.__sprinting):
+                movement[0] -= constants.SPRINT_VELOCITY
+            # end if
         # end if
 
-        self.__rect.x += movement[0]
-        hit_list = engine.collision_test(self.__rect, tile_rects)
+        self.__hitbox.x += movement[0]
+        hit_list = Player.collision_test(self.__hitbox, tile_rects)
         for tile in hit_list:
             if (movement[0] > 0):
-                self.__rect.right = tile.left
+                self.__hitbox.right = tile.left
             elif (movement[0] < 0):
-                self.__rect.left = tile.right
+                self.__hitbox.left = tile.right
             # end if
         # end for
 
-        self.__rect.y += movement[1]
+        self.__hitbox.y += movement[1]
         self.__air_timer += 1
-        hit_list = engine.collision_test(self.__rect, tile_rects)
+        hit_list = Player.collision_test(self.__hitbox, tile_rects)
         for tile in hit_list:
             if (movement[1] > 0):
-                self.__rect.bottom = tile.top
+                self.__hitbox.bottom = tile.top
                 self.__y_momentum = 0
                 self.__air_timer = 0
+                self.__jumping = False
             elif (movement[1] < 0):
-                self.__rect.top = tile.bottom
+                self.__hitbox.top = tile.bottom
                 self.__y_momentum = 0
             # end if
         # end for
     # end move
+
+    def update(self, tile_rects):
+        self.__y_momentum += 0.5
+        self.move(tile_rects)
+        self.__location[0] = self.__hitbox.x
+        self.__location[1] = self.__hitbox.y
+
+        #self.__send()
+    # end update
 
     def handle_events(self, events):
         for event in events:
@@ -98,9 +100,10 @@ class Player:
                 elif (event.key == K_a):
                     self.__moving_left = True
                 elif (event.key == K_SPACE and self.__air_timer < 6):
+                    self.__jumping = True
                     self.__y_momentum = -14
                 elif (event.key == K_LSHIFT and self.__air_timer < 6):
-                    self.__sprint_vel = 3
+                    self.__sprinting = True
                 # end if
             elif (event.type == pygame.KEYUP):
                 if (event.key == K_d):
@@ -108,24 +111,37 @@ class Player:
                 elif (event.key == K_a):
                     self.__moving_left = False
                 elif (event.key == K_LSHIFT):
-                    self.__sprint_vel = 0
+                    self.__sprinting = False
                 # end if
             # end if
         # end for
     # end handle_events
 
-    def update(self, tile_rects):
-        self.__y_momentum += 0.5
-        self.move(tile_rects)
-        self.__location[0] = self.__rect.x
-        self.__location[1] = self.__rect.y
 
-        constants.location = self.__location
-        constants.img = self.__img_path
-        constants.size = self.__rect.size
-    # end update
+    ####################################################
+    ### CONNECTION METHODS
+    ####################################################
+    def __send(self):
+        message = str(self.__moving_right) + ';' +\
+                  str(self.__moving_left) + ';' +\
+                  str(self.__sprinting) + ';' +\
+                  str(self.__jumping) 
+        self.__connection.sendto(message.encode(), (constants.SERVER, constants.PORT))
+    # end send
 
-    def draw(self):
-        constants.SCREEN.blit(self.__img, self.__location)
-    # end draw_player
+
+    ####################################################
+    ### CLASS METHODS
+    ####################################################
+    def collision_test(hitbox, tiles):
+        hit_list = []
+
+        for tile in tiles:
+            if (hitbox.colliderect(tile)):
+                hit_list.append(tile)
+            # end if
+        # end for
+
+        return hit_list
+    # end collision_test
 # end Player class

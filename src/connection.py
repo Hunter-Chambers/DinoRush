@@ -10,29 +10,32 @@ from src import constants
 
 SERVER = "10.0.0.191"
 PORT = 27016
+ADDR = (SERVER, PORT)
 BUFFER_SIZE = 2048
 
 
 def connect_to_server():
-    client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    client_socket.settimeout(5)
+    client_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    #client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    #client_socket.settimeout(5)
 
     try:
-        client_socket.connect((SERVER, PORT))
+        #client_socket.connect((SERVER, PORT))
 
-        client_socket.send('<RECEIVING>'.encode())
-        msg = client_socket.recv(BUFFER_SIZE).decode()
+        client_socket.sendto('<RECEIVING>'.encode(), ADDR)
+        msg, addr = client_socket.recvfrom(BUFFER_SIZE)
+        msg = msg.decode()
 
         if ('Player' in msg):
             constants.recv_thread = Thread(target=recv_from_server, args=(client_socket,))
             constants.recv_thread.start()
 
-            client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            client_socket.settimeout(5)
+            client_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+            #client_socket.settimeout(5)
 
-            client_socket.connect((SERVER, PORT))
+            #client_socket.connect((SERVER, PORT))
 
-            client_socket.send('<SENDING>'.encode())
+            client_socket.sendto('<SENDING>'.encode(), ADDR)
 
             constants.send_thread = Thread(target=send_from_client, args=(client_socket,))
             constants.send_thread.start()
@@ -49,28 +52,24 @@ def connect_to_server():
 # end connect_to_server
 
 def recv_from_server(client_socket):
-    client_socket.settimeout(None)
-    client_socket.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
+    #client_socket.settimeout(None)
+    #client_socket.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
 
     while(constants.loop):
         try:
-            msg = client_socket.recv(BUFFER_SIZE).decode()
+            msg, addr = client_socket.recvfrom(BUFFER_SIZE)
+            msg = msg.decode()
             if (not msg):
                 raise socket.error
             # end if
 
-            client_socket.send(msg.encode())
+            #client_socket.send(msg.encode())
         except socket.error:
             break
         # end try/except
 
         info = json.loads(msg)
         player_id = list(info.keys())[0]
-
-        while (constants.cannot_update):
-            pass
-        # end while
-        constants.cannot_update = True
 
         constants.players[player_id] = info[player_id]
     # end while
@@ -80,16 +79,16 @@ def recv_from_server(client_socket):
 # end recv_from_server
 
 def send_from_client(client_socket):
-    client_socket.settimeout(None)
-    client_socket.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
+    #client_socket.settimeout(None)
+    #client_socket.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
 
     while(constants.loop):
         if (constants.location):
             msg = json.dumps({constants.id:{'location':constants.location, 'img':constants.img, 'size':constants.size}})
 
             try:
-                client_socket.send(msg.encode())
-                client_socket.recv(BUFFER_SIZE)
+                client_socket.sendto(msg.encode(), ADDR)
+                #client_socket.recv(BUFFER_SIZE)
             except socket.error:
                 break
             # end try/except

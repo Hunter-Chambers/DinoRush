@@ -117,12 +117,12 @@ class Game_Map:
     ####################################################
     ### INSTANCE METHODS
     ####################################################
-    def draw(self):
-        for group in self.__parallax_imgs.keys():
-            constants.SCREEN.blit(self.__parallax_imgs[group][2], (0,0))
+    def draw(self, screen):
+        for group in self.__parallax_imgs:
+            screen.blit(self.__parallax_imgs[group][2], (0,0))
         # end for
 
-        constants.SCREEN.blit(self.__display, (0,0))
+        screen.blit(self.__display, (0,0))
     # end draw map
 
 

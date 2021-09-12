@@ -1,8 +1,11 @@
 import pygame
 from pygame.locals import *
 
+import socket
+import json
 import sys
-from src import constants, connection
+
+from src import constants
 
 
 class Cursor:
@@ -36,8 +39,8 @@ class Cursor:
     ####################################################
     ### INSTANCE METHODS
     ####################################################
-    def draw(self):
-        constants.SCREEN.blit(self.__img, self.__location)
+    def draw(self, screen):
+        screen.blit(self.__img, self.__location)
     # end draw
 # end Cursor class
 
@@ -48,46 +51,24 @@ class Main_Menu:
     ### CONSTRUCTOR
     ####################################################
     def __init__(self):
-        self.__at_main_menu = True
         self.__option = 1
 
         self.__main_options_img = pygame.image.load('assets/imgs/main_options.png')
         main_options_rect = self.__main_options_img.get_rect()
-        screen_rect = constants.SCREEN.get_rect()
-        main_options_rect.center = screen_rect.center
+        main_options_rect.center = constants.SCREEN_CENTER
         self.__location = (main_options_rect.x, main_options_rect.y)
 
         self.__cursor = Cursor([self.__location[0] - 20, self.__location[1] - 5])
 
-        self.__connection_return_msg = ''
+        self.__error_occurred = False
         self.__failed_to_connect_img = pygame.image.load('assets/imgs/Failed_to_connect.png')
     # end init
 
 
     ####################################################
-    ### GETTERS
-    ####################################################
-    def get_at_main_menu(self):
-        return self.__at_main_menu
-    # end get_at_main_menu
-
-    def get_connection_return_message(self):
-        return self.__connection_return_msg
-    # end get_at_main_menu
-
-
-    ####################################################
-    ### SETTERS
-    ####################################################
-    def set_connection_return_message(self, msg=''):
-        self.__connection_return_msg = msg
-    # end get_at_main_menu
-
-
-    ####################################################
     ### INSTANCE METHODS
     ####################################################
-    def handle_events(self, events):
+    def handle_events(self, events, at_main_menu):
         for event in events:
             if (event.type == pygame.KEYDOWN):
                 cursor_location = self.__cursor.get_location()
@@ -116,8 +97,25 @@ class Main_Menu:
                     # end if
                 elif (event.key == K_SPACE or event.key == K_RETURN):
                     if (self.__option == 1):
-                        self.__at_main_menu, self.__connection_return_msg = connection.connect_to_server()
+                        '''
+                        - attempt connection
+                        '''
+
+                        conn = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+                        try:
+                            conn.sendto('initial connection'.encode(), (constants.SERVER, constants.PORT))
+                            message, addr = conn.recvfrom(constants.BUFFER_SIZE)
+                            message = message.decode()
+                        except socket.error:
+                            self.__error_occurred = True
+                        # end try/except
+
                         pygame.event.clear()
+
+                        #at_main_menu = False
+
+                        print(json.loads(message))
+                        return json.loads(message)
                     elif (self.__option == 2):
                         pass
                     else:
@@ -129,11 +127,11 @@ class Main_Menu:
         # end for
     # end handle_events
 
-    def draw(self):
-        constants.SCREEN.blit(self.__main_options_img, self.__location)
-        self.__cursor.draw()
-        if (self.__connection_return_msg != '' and not 'Player' in self.__connection_return_msg):
-            constants.SCREEN.blit(self.__failed_to_connect_img, self.__location)
+    def draw(self, screen):
+        screen.blit(self.__main_options_img, self.__location)
+        self.__cursor.draw(screen)
+        if (self.__error_occurred):
+            screen.blit(self.__failed_to_connect_img, self.__location)
         # end if
     # end draw
 # end Main_Menu class

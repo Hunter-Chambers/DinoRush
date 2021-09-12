@@ -8,20 +8,27 @@ import sys
 from src import constants, game_map, menus, player
 
 
+CLOCK = pygame.time.Clock()
+BG_COLOR = pygame.Color('black')
+
+
 ##################################################################
 ### game loop
 ##################################################################
 if __name__ == "__main__":
     pygame.init()
 
+    SCREEN = pygame.display.set_mode((constants.WINDOW_SIZE))
+
     pygame.display.set_caption('Dino Rush!')
     pygame.display.set_icon(pygame.image.load('assets/imgs/title_icon.png'))
 
     level = game_map.Game_Map('main_menu_map.txt')
     main_menu = menus.Main_Menu()
+    at_main_menu = True
 
     while True:
-        while (main_menu.get_at_main_menu()):
+        while (at_main_menu):
             events = pygame.event.get()
 
             for event in events:
@@ -30,13 +37,13 @@ if __name__ == "__main__":
                     sys.exit()
             # end for
 
-            main_menu.handle_events(events)
+            connection_message = main_menu.handle_events(events, at_main_menu)
 
-            constants.SCREEN.fill(constants.BG_COLOR)
-            level.draw()
-            main_menu.draw()
+            SCREEN.fill(BG_COLOR)
+            level.draw(SCREEN)
+            main_menu.draw(SCREEN)
             pygame.display.flip()
-            constants.CLOCK.tick(60)
+            CLOCK.tick(60)
         # end while
 
         ##################################################################
@@ -75,7 +82,6 @@ if __name__ == "__main__":
                 #constants.SCREEN.blit(img, constants.players[player_id]['location'])
                 constants.SCREEN.blit(player.TEMP_TEST, constants.players[player_id]['location'])
             # end for
-            constants.cannot_update = False
 
             character.draw()
             pygame.display.flip()
