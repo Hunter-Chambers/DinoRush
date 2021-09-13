@@ -100,7 +100,7 @@ class Player:
         self.__y_momentum += 0.5
         self.move(tile_rects)
 
-        if (self.__location == list(self.__hitbox.topleft)):
+        if (self.__location != list(self.__hitbox.topleft)):
             self.__location[0] = self.__hitbox.x
             self.__location[1] = self.__hitbox.y
 
