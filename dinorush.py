@@ -27,7 +27,7 @@ players = {}
 character = None
 
 # NOTE:
-TEST_IMG = pygame.image.load('assets/animations/jump/jump_0.png')
+TEST_IMG = pygame.image.load('assets/animations/cyan/jump/jump_0.png')
 TEST_IMG = pygame.transform.scale(TEST_IMG, (45, 54))
 
 
