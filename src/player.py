@@ -100,10 +100,12 @@ class Player:
         self.__y_momentum += 0.5
         self.move(tile_rects)
 
-        self.__location[0] = self.__hitbox.x
-        self.__location[1] = self.__hitbox.y
+        if (self.__location != list(self.__hitbox.topleft)):
+            self.__location[0] = self.__hitbox.x
+            self.__location[1] = self.__hitbox.y
 
-        self.__send()
+            self.__send()
+        # end if
     # end update
 
     def handle_events(self, events):

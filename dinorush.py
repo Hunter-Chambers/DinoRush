@@ -125,9 +125,8 @@ if __name__ == "__main__":
             SCREEN.fill(BG_COLOR)
             level.draw(SCREEN)
 
+            # NOTE:
             for player_id in players:
-                #img = pygame.transform.scale(pygame.image.load('assets/animations/' + constants.players[player_id]['img']), constants.players[player_id]['size'])
-                #constants.SCREEN.blit(img, constants.players[player_id]['location'])
                 SCREEN.blit(TEST_IMG, players[player_id])
             # end for
 
