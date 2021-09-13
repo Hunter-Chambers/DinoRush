@@ -68,7 +68,7 @@ class Main_Menu:
     ####################################################
     ### INSTANCE METHODS
     ####################################################
-    def handle_events(self, events, at_main_menu):
+    def handle_events(self, events):
         for event in events:
             if (event.type == pygame.KEYDOWN):
                 cursor_location = self.__cursor.get_location()
@@ -97,26 +97,27 @@ class Main_Menu:
                     # end if
                 elif (event.key == K_SPACE or event.key == K_RETURN):
                     if (self.__option == 1):
-                        '''
-                        - attempt connection
-                        '''
-
-                        conn = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+                        conn = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                        conn.settimeout(1)
+                        self.__error_occurred = False
                         try:
-                            conn.sendto('initial connection'.encode(), (constants.SERVER, constants.PORT))
-                            message, addr = conn.recvfrom(constants.BUFFER_SIZE)
-                            message = message.decode()
+                            conn.connect((constants.SERVER, constants.PORT))
+
+                            conn.send('initial connection'.encode())
+                            message = conn.recv(constants.BUFFER_SIZE).decode()
+
+                            conn.shutdown(socket.SHUT_RDWR)
+
+                            return False, json.loads(message)
                         except socket.error:
                             self.__error_occurred = True
                         # end try/except
 
+                        conn.close()
+
                         pygame.event.clear()
-
-                        #at_main_menu = False
-
-                        print(json.loads(message))
-                        return json.loads(message)
                     elif (self.__option == 2):
+                        # NOTE:
                         pass
                     else:
                         pygame.quit()
@@ -125,11 +126,16 @@ class Main_Menu:
                 # end if
             # end if
         # end for
+
+        return True, None
     # end handle_events
 
     def draw(self, screen):
         screen.blit(self.__main_options_img, self.__location)
         self.__cursor.draw(screen)
+
+        # NOTE:
+        # add a timer to cause the error message to disapper after a while
         if (self.__error_occurred):
             screen.blit(self.__failed_to_connect_img, self.__location)
         # end if

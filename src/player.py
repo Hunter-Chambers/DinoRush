@@ -2,6 +2,7 @@ import pygame
 from pygame.locals import *
 
 import socket
+import json
 
 from src import constants
 
@@ -11,17 +12,21 @@ class Player:
     ####################################################
     ### CONSTRUCTOR
     ####################################################
-    def __init__(self, dino_color, starting_location):
+    def __init__(self, player_id, dino_color, starting_location, send_port):
         self.__connection = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        self.__connection.settimeout(1)
+        self.__send_port = send_port
 
         img_path = dino_color + '/jump/jump_0.png'
 
         ########################################################
+        # NOTE:
         # maybe load all possible images
         self.__img = pygame.image.load('assets/animations/' + img_path)
         self.__img = pygame.transform.scale(self.__img, (45, 54))
         ########################################################
 
+        self.__id = player_id
         self.__moving_right = False
         self.__moving_left = False
         self.__sprinting = False
@@ -34,6 +39,14 @@ class Player:
                                   self.__location[1],
                                   45, 54)
     # end init
+
+
+    ####################################################
+    ### GETTERS
+    ####################################################
+    def get_id(self):
+        return self.__id
+    # end get_id
 
 
     ####################################################
@@ -89,7 +102,7 @@ class Player:
         self.__location[0] = self.__hitbox.x
         self.__location[1] = self.__hitbox.y
 
-        #self.__send()
+        self.__send()
     # end update
 
     def handle_events(self, events):
@@ -117,16 +130,27 @@ class Player:
         # end for
     # end handle_events
 
+    def draw(self, screen):
+        screen.blit(self.__img, self.__location)
+    # end draw
+
 
     ####################################################
     ### CONNECTION METHODS
     ####################################################
     def __send(self):
-        message = str(self.__moving_right) + ';' +\
-                  str(self.__moving_left) + ';' +\
-                  str(self.__sprinting) + ';' +\
-                  str(self.__jumping) 
-        self.__connection.sendto(message.encode(), (constants.SERVER, constants.PORT))
+        # NOTE:
+        # still need to append to this clients messages
+        message = json.dumps({
+            socket.gethostbyname(socket.gethostname()):{
+                'moving_right':self.__moving_right,
+                'moving_left':self.__moving_left,
+                'sprinting':self.__sprinting,
+                'jumping':self.__jumping
+            }
+        }).encode()
+
+        self.__connection.sendto(message, (constants.SERVER, self.__send_port))
     # end send
 
 
