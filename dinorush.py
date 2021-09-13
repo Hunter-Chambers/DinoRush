@@ -49,7 +49,7 @@ def recv_thread(client_connection):
 
         for player_id in player_ids:
             if (player_id != character.get_id()):
-                SCREEN.blit(TEST_IMG, msg[player_id])
+                players[player_id] = msg[player_id]
             # end if
         # end for
     # end while
@@ -122,16 +122,14 @@ if __name__ == "__main__":
             character.handle_events(events)
             character.update(level.get_tile_rects())
 
-            #SCREEN.fill(BG_COLOR)
+            SCREEN.fill(BG_COLOR)
             level.draw(SCREEN)
 
-            '''
-            for player_id in constants.players:
+            for player_id in players:
                 #img = pygame.transform.scale(pygame.image.load('assets/animations/' + constants.players[player_id]['img']), constants.players[player_id]['size'])
                 #constants.SCREEN.blit(img, constants.players[player_id]['location'])
-                constants.SCREEN.blit(player.TEMP_TEST, constants.players[player_id]['location'])
+                SCREEN.blit(TEST_IMG, players[player_id])
             # end for
-            '''
 
             character.draw(SCREEN)
             pygame.display.flip()
