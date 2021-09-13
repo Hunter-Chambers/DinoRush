@@ -122,7 +122,7 @@ if __name__ == "__main__":
             character.handle_events(events)
             character.update(level.get_tile_rects())
 
-            SCREEN.fill(BG_COLOR)
+            #SCREEN.fill(BG_COLOR)
             level.draw(SCREEN)
 
             '''
