@@ -1,10 +1,6 @@
 import pygame
 from pygame.locals import *
 
-import socket
-import json
-import sys
-
 from src import constants
 
 
@@ -30,9 +26,8 @@ class Cursor:
     ####################################################
     ### SETTERS
     ####################################################
-    def set_location(self, x=0, y=0):
-        self.__location[0] = x
-        self.__location[1] = y
+    def set_location(self, new_location):
+        self.__location = new_location
     # end set_location
 
 
@@ -45,23 +40,31 @@ class Cursor:
 # end Cursor class
 
 
-class Main_Menu:
+class Menu:
 
     ####################################################
     ### CONSTRUCTOR
     ####################################################
-    def __init__(self):
-        self.__option = 1
+    def __init__(self, img, cursor_locations, functions, location=None, has_extras=False, extras=None):
+        self.__option = 0
+        self.__cursor_locations = cursor_locations
 
-        self.__main_options_img = pygame.image.load('assets/imgs/main_options.png')
-        main_options_rect = self.__main_options_img.get_rect()
-        main_options_rect.center = constants.SCREEN_CENTER
-        self.__location = (main_options_rect.x, main_options_rect.y)
+        self.__main_options_img = pygame.image.load('assets/imgs/' + img)
 
-        self.__cursor = Cursor([self.__location[0] - 20, self.__location[1] - 5])
+        if (location is None):
+            main_options_rect = self.__main_options_img.get_rect()
+            main_options_rect.center = constants.SCREEN_CENTER
+            self.__location = (main_options_rect.x, main_options_rect.y)
+        else:
+            self.__location = location
+        # end if
 
-        self.__error_occurred = False
-        self.__failed_to_connect_img = pygame.image.load('assets/imgs/Failed_to_connect.png')
+        self.__cursor = Cursor(self.__cursor_locations[self.__option])
+
+        self.__functions = functions
+
+        self.__has_extras = has_extras
+        self.__extras = extras
     # end init
 
 
@@ -71,73 +74,43 @@ class Main_Menu:
     def handle_events(self, events):
         for event in events:
             if (event.type == pygame.KEYDOWN):
-                cursor_location = self.__cursor.get_location()
-
                 if (event.key == K_s or event.key == K_DOWN):
-                    if (self.__option == 1):
-                        self.__cursor.set_location(cursor_location[0] - 85, cursor_location[1] + 113)
-                        self.__option = 2
-                    elif (self.__option == 2):
-                        self.__cursor.set_location(cursor_location[0] + 115, cursor_location[1] + 113)
-                        self.__option = 3
-                    else:
-                        self.__cursor.set_location(cursor_location[0] - 30, cursor_location[1] - 226)
-                        self.__option = 1
+                    self.__option += 1
+
+                    if (self.__option >= len(self.__cursor_locations)):
+                        self.__option = 0
                     # end if
+
+                    self.__cursor.set_location(self.__cursor_locations[self.__option])
                 elif (event.key == K_w or event.key == K_UP):
-                    if (self.__option == 1):
-                        self.__cursor.set_location(cursor_location[0] + 30, cursor_location[1] + 226)
-                        self.__option = 3
-                    elif (self.__option == 2):
-                        self.__cursor.set_location(cursor_location[0] + 85, cursor_location[1] - 113)
-                        self.__option = 1
-                    else:
-                        self.__cursor.set_location(cursor_location[0] - 115, cursor_location[1] - 113)
-                        self.__option = 2
+                    self.__option -= 1
+
+                    if (self.__option < 0):
+                        self.__option = len(self.__cursor_locations) - 1
                     # end if
+
+                    self.__cursor.set_location(self.__cursor_locations[self.__option])
                 elif (event.key == K_SPACE or event.key == K_RETURN):
-                    if (self.__option == 1):
-                        conn = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                        conn.settimeout(1)
-                        self.__error_occurred = False
-                        try:
-                            conn.connect((constants.SERVER, constants.PORT))
-
-                            conn.send('initial connection'.encode())
-                            message = conn.recv(constants.BUFFER_SIZE).decode()
-
-                            conn.shutdown(socket.SHUT_RDWR)
-
-                            return False, json.loads(message)
-                        except socket.error:
-                            self.__error_occurred = True
-                        # end try/except
-
-                        conn.close()
-
-                        pygame.event.clear()
-                    elif (self.__option == 2):
-                        # NOTE:
-                        pass
-                    else:
-                        pygame.quit()
-                        sys.exit()
-                    # end if
+                    try:
+                        self.__functions[self.__option][0](self.__functions[self.__option][1])
+                    except IndexError:
+                        self.__functions[self.__option][0]()
+                    # end try/except
                 # end if
             # end if
         # end for
-
-        return True, None
     # end handle_events
 
     def draw(self, screen):
         screen.blit(self.__main_options_img, self.__location)
         self.__cursor.draw(screen)
 
-        # NOTE:
-        # add a timer to cause the error message to disapper after a while
-        if (self.__error_occurred):
-            screen.blit(self.__failed_to_connect_img, self.__location)
+        if (self.__has_extras):
+            for extra in self.__extras:
+                if extra[0]:
+                    screen.blit(extra[1], extra[2])
+                # end if
+            # end for
         # end if
     # end draw
 # end Main_Menu class

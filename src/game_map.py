@@ -9,7 +9,7 @@ class Game_Map:
     ### CONSTRUCTOR
     ####################################################
     def __init__(self, filename):
-        f = open('maps/' + filename, 'r')
+        f = open('assets/maps/' + filename, 'r')
         lines = f.read()
         f.close()
         lines = lines.splitlines()
@@ -39,7 +39,7 @@ class Game_Map:
                 self.__parallax_imgs[info[1]] = [info[2], eval(info[3]), image]
             # end if
 
-            image = pygame.transform.scale(pygame.image.load('assets/imgs/' + info[0]), (constants.WINDOW_SIZE))
+            image = pygame.transform.scale(pygame.image.load('assets/maps/parallax/' + info[0]), (constants.WINDOW_SIZE))
             self.__parallax_imgs[info[1]][2].blit(image, (0,0))
         # end for
 
@@ -50,7 +50,7 @@ class Game_Map:
         for i in range(extras_amount):
             info = lines[i + parallax_amount + 11].split(';')
 
-            image = pygame.transform.scale(pygame.image.load('assets/imgs/' + info[0]), eval(info[2]))
+            image = pygame.transform.scale(pygame.image.load('assets/maps/extras/' + info[0]), eval(info[2]))
             self.__display.blit(image, eval(info[1]))
         # end for
 
@@ -132,7 +132,7 @@ class Game_Map:
     def __load_tileset(filename, tile_names, width, height, rows, cols, scale):
         width *= scale
         height *= scale
-        image = pygame.transform.scale(pygame.image.load('assets/imgs/' + filename), (cols * width, rows * height))
+        image = pygame.transform.scale(pygame.image.load('assets/maps/tilesets/' + filename), (cols * width, rows * height))
 
         name = 0
         tile_table = {}

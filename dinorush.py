@@ -7,30 +7,38 @@
 import pygame
 from pygame.locals import *
 
-import socket
 import sys
-import json
-from threading import Thread
+# NOTE:
+#import socket
+#import json
+#from threading import Thread
 
-from src import constants, game_map, menus, player
+#from src import constants, game_map, menus, player
+from src import constants, menus, game_map, menu_functions
 
 
 #############################################################
 ### GLOBALS
 #############################################################
-CLOCK = pygame.time.Clock()
+SCREEN = None  # defined in setup
 BG_COLOR = pygame.Color('black')
-
-ACTIVE_THREADS = []
-LOOP = True
-players = {}
-character = None
+CLOCK = pygame.time.Clock()
 
 # NOTE:
-TEST_IMG = pygame.image.load('assets/animations/cyan/jump/jump_0.png')
-TEST_IMG = pygame.transform.scale(TEST_IMG, (45, 54))
+# note sure if I will keep active_threads.
+# works best for now, though
+ACTIVE_THREADS = []
+
+# NOTE:
+#LOOP = True
+#players = {}
+#character = None
+
+#TEST_IMG = pygame.image.load('assets/animations/cyan/jump/jump_0.png')
+#TEST_IMG = pygame.transform.scale(TEST_IMG, (45, 54))
 
 
+'''
 ##################################################################
 ### RECV THREAD
 ##################################################################
@@ -56,25 +64,36 @@ def recv_thread(client_connection):
 
     client_connection.close()
 # end recv_thread
+'''
+
+
+##################################################################
+### PYGAME SETUP
+##################################################################
+pygame.init()
+SCREEN = pygame.display.set_mode((constants.WINDOW_SIZE))
+pygame.display.set_caption('Dino Rush!')
+pygame.display.set_icon(pygame.image.load('assets/imgs/title_icon.png'))
 
 
 ##################################################################
 ### GAME LOOP
 ##################################################################
 if __name__ == "__main__":
-    pygame.init()
-
-    SCREEN = pygame.display.set_mode((constants.WINDOW_SIZE))
-
-    pygame.display.set_caption('Dino Rush!')
-    pygame.display.set_icon(pygame.image.load('assets/imgs/title_icon.png'))
+    # NOTE:
+    #at_main_menu = True
 
     level = game_map.Game_Map('main_menu_map.txt')
-    main_menu = menus.Main_Menu()
-    at_main_menu = True
+
+    main_menu_extras = [[False, pygame.image.load('assets/imgs/Failed_to_connect.png'), (330, 700)],
+                        [False, pygame.image.load('assets/imgs/Connecting.png'), (0, 0)]]
+    main_menu = menus.Menu('main_options.png', [(545, 315), (460, 428), (575, 541)],
+      [(menu_functions.connect_to_server, [main_menu_extras, level, SCREEN, BG_COLOR]), (menu_functions.empty_function,), (menu_functions.quit_game,)],
+      None, True, main_menu_extras)
 
     while True:
-        while (at_main_menu):
+        #while (at_main_menu):
+        while (len(ACTIVE_THREADS) <= 0):
             events = pygame.event.get()
 
             for event in events:
@@ -83,7 +102,9 @@ if __name__ == "__main__":
                     sys.exit()
             # end for
 
-            at_main_menu, connection_message = main_menu.handle_events(events)
+            # NOTE:
+            #at_main_menu, connection_message = main_menu.handle_events(events)
+            main_menu.handle_events(events)
 
             SCREEN.fill(BG_COLOR)
             level.draw(SCREEN)
@@ -92,6 +113,7 @@ if __name__ == "__main__":
             CLOCK.tick(60)
         # end while
 
+        '''
         ##################################################################
         level = game_map.Game_Map(connection_message['map_name'])
         character = player.Player(connection_message['player_id'], connection_message['player_color'], connection_message['position'], connection_message['send_port'])
@@ -134,5 +156,6 @@ if __name__ == "__main__":
             pygame.display.flip()
             CLOCK.tick(60)
         # end while
+        '''
     # end while
 # end if
