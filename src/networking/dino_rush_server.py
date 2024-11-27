@@ -1,18 +1,19 @@
 #!/usr/bin/env python
 
 
-import pickle
-import pygame
-import time
-
-import sys
-sys.path.append("D:\\repos\\DinoRush\\src")
-
+#############################################################
+### IMPORTS
+#############################################################
 import constants
 import engine
 from networking.server import Server
 from player.dino_rush_player import DinoRushPlayer
 from world.game_world import GameWorld
+
+import pickle
+import pygame
+import time
+
 
 #############################
 # TODO: DELETE THESE LATER
@@ -104,11 +105,7 @@ class DinoRushServer(Server):
                 world.update()
 
                 DinoRushServer.handle_message(self, current_time)
-
-                # if (current_time - self.LAST_UPDATE_TIME >= self.UPDATE_INTERVAL):
                 self.send_all_player_data_to_all_clients()
-                self.LAST_UPDATE_TIME = current_time
-                # end if
 
                 clock.tick(constants.FPS)
             except KeyboardInterrupt:

@@ -4,6 +4,10 @@
 import os
 import sys
 
+os.environ['PYGAME_HIDE_SUPPORT_PROMPT']\
+    = os.environ.get('PYGAME_HIDE_SUPPORT_PROMPT', "1")
+
+
 
 ####################################################
 ### FILE ACCESSOR

@@ -1,7 +1,10 @@
+#############################################################
+### IMPORTS
+#############################################################
+import constants
+
 import pickle
 import socket
-
-import constants
 
 
 class Connection:

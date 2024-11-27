@@ -1,10 +1,10 @@
 #############################################################
 ### IMPORTS
 #############################################################
+import constants
+
 import json
 import pygame
-
-import constants
 
 
 class Player:

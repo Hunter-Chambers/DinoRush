@@ -1,8 +1,10 @@
-import pickle
-import time
-
+#############################################################
+### IMPORTS
+#############################################################
 import constants
 from networking.connection import Connection
+
+import pickle
 
 
 class Server(Connection):
@@ -12,8 +14,6 @@ class Server(Connection):
         self.SERVER.bind(constants.SERVER_CONNECTION_INFO)
 
         self.RUNNING = True
-        self.UPDATE_INTERVAL = 0.1
-        self.LAST_UPDATE_TIME = time.time()
 
         self.CLIENTS = self.get_connections()
         # this looks like:

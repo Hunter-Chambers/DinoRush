@@ -4,14 +4,14 @@
 #############################################################
 ### IMPORTS
 #############################################################
-import pygame
-import time
-
 from camera import Camera
 import constants
 import engine
 from networking.dino_rush_client import DinoRushClient
 from world.game_world import GameWorld
+
+import pygame
+import time
 
 
 ##################################################################

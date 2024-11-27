@@ -1,6 +1,9 @@
-import pickle
-
+#############################################################
+### IMPORTS
+#############################################################
 from networking.connection import Connection
+
+import pickle
 
 
 class Client(Connection):

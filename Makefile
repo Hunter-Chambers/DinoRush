@@ -1,9 +1,23 @@
+MAKEFLAGS += --no-print-directory -k -s -i
+
+clean	:
+	find . -type f -name "*.py[co]" -delete; \
+	find . -type d -name "__pycache__" -delete; \
+	rm -rf src/build src/dist src/DinoRush.spec
+
 run		:	src/main.py
-	python src/main.py ; rm -rf src/*/__pycache__ src/__pycache__
+	trap 'make clean' SIGINT; \
+	src/main.py || true
+
+server	:	src/networking/dino_rush_server.py
+	trap 'make clean' SIGINT; \
+	src/networking/dino_rush_server.py || true
 
 exe		:	src/main.py
-	cd src; \
-	pyinstaller -F -i ../assets/imgs/icon.ico -n DinoRush \
+	trap 'cd /d/repos/DinoRush; make clean' SIGINT; \
+	(cd src; \
+	pyinstaller -F --noconsole \
+	-i ../assets/imgs/icon.ico -n DinoRush \
 	--add-data "../assets/imgs/parallaxes/*:assets/imgs/parallaxes" \
 	--add-data "../assets/imgs/sprite_sheets/players/*:assets/imgs/sprite_sheets/players" \
 	--add-data "../assets/imgs/tilesets/*:assets/imgs/tilesets" \
@@ -18,7 +32,5 @@ exe		:	src/main.py
 	--add-data "constants.py:." \
 	--add-data "engine.py:." \
 	main.py;\
-	mv dist/DinoRush.exe ../; \
-	rm -rf build/ dist/ DinoRush.spec; \
-	cd ..; \
-	find . -name "__pycache__" -type d -exec rm -rf {} \;
+	mv dist/DinoRush.exe ../;) || true \
+	cd ..;

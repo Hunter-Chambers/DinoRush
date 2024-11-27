@@ -1,14 +1,13 @@
 #############################################################
 ### IMPORTS
 #############################################################
-import pygame
-
-import json
-import math
-
 import constants
 from world.world_object import WorldObject
 from world.parallax import Parallax
+
+import json
+import math
+import pygame
 
 
 class GameWorld:

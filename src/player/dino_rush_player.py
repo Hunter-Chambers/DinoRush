@@ -1,10 +1,10 @@
 #############################################################
 ### IMPORTS
 #############################################################
-import pygame
-
 import constants
 from player.player import Player
+
+import pygame
 
 
 class DinoRushPlayer(Player):
