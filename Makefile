@@ -1,19 +1,22 @@
 MAKEFLAGS += --no-print-directory -k -s -i
 
-clean	:
+clean			:
 	find . -type f -name "*.py[co]" -delete; \
 	find . -type d -name "__pycache__" -delete; \
 	rm -rf src/build src/dist src/DinoRush.spec
 
-run		:	src/main.py
+run				:	_run_target clean
+_run_target		:	src/main.py
 	trap 'make clean' SIGINT; \
 	src/main.py || true
 
-server	:	src/networking/dino_rush_server.py
+server			:	_server_target clean
+_server_target	:	src/networking/dino_rush_server.py
 	trap 'make clean' SIGINT; \
 	src/networking/dino_rush_server.py || true
 
-exe		:	src/main.py
+exe				:	_exe_target clean
+_exe_target		:	src/main.py
 	trap 'cd /d/repos/DinoRush; make clean' SIGINT; \
 	(cd src; \
 	pyinstaller -F --noconsole \
