@@ -18,7 +18,8 @@ _server_target	:	src/networking/dino_rush_server.py
 exe				:	_exe_target clean
 _exe_target		:	src/main.py
 	trap 'cd /d/repos/DinoRush; make clean' SIGINT; \
-	(cd src; \
+	(rm -f DinoRush.exe; \
+	cd src; \
 	pyinstaller -F --noconsole \
 	-i ../assets/imgs/icon.ico -n DinoRush \
 	--add-data "../assets/imgs/parallaxes/*:assets/imgs/parallaxes" \
