@@ -27,7 +27,7 @@ class Player:
                 self.__sprite_sheet.get_height() * scale_factor))
 
         sprite_sheet_data_file = open(
-            f"assets/imgs/sprite_sheets/players/{sprite_sheet_id}_data.json")
+            f"assets/players/{sprite_sheet_id}_data.json")
         sprite_sheet_data = json.load(sprite_sheet_data_file)
         sprite_sheet_data_file.close()
 
