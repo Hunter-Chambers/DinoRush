@@ -3,6 +3,8 @@
 #############################################################
 import pygame
 
+import constants
+
 
 class WorldObject:
     #########################################################
@@ -10,7 +12,8 @@ class WorldObject:
     #########################################################
     def __init__(self, img_info, loading_on_server=False):
         self.__img = pygame.image.load(
-            f"assets/imgs/world_objects/{img_info["img_id"]}.png")
+            constants.BASE_PATH
+            + f"/assets/imgs/world_objects/{img_info["img_id"]}.png")
         if (not loading_on_server):
             self.__img = self.__img.convert_alpha()
         # end if

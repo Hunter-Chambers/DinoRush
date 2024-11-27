@@ -19,7 +19,8 @@ from world.game_world import GameWorld
 ##################################################################
 pygame.init()
 pygame.display.set_caption(constants.GAME_TITLE)
-pygame.display.set_icon(pygame.image.load('assets/imgs/title_icon.png'))
+pygame.display.set_icon(pygame.image.load(
+    constants.BASE_PATH + '/assets/imgs/title_icon.png'))
 
 
 ##################################################################

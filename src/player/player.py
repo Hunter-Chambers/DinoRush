@@ -4,6 +4,8 @@
 import json
 import pygame
 
+import constants
+
 
 class Player:
     #########################################################
@@ -16,7 +18,8 @@ class Player:
         self.__scale_factor = scale_factor
 
         self.__sprite_sheet = pygame.image.load(
-            f"assets/imgs/sprite_sheets/players/{sprite_sheet_id}.png")
+            constants.BASE_PATH
+            + f"/assets/imgs/sprite_sheets/players/{sprite_sheet_id}.png")
         if (not loading_on_server):
             self.__sprite_sheet = self.__sprite_sheet.convert_alpha()
         # end if
@@ -27,7 +30,8 @@ class Player:
                 self.__sprite_sheet.get_height() * scale_factor))
 
         sprite_sheet_data_file = open(
-            f"assets/players/{sprite_sheet_id}_data.json")
+            constants.BASE_PATH
+            + f"/assets/players/{sprite_sheet_id}_data.json")
         sprite_sheet_data = json.load(sprite_sheet_data_file)
         sprite_sheet_data_file.close()
 

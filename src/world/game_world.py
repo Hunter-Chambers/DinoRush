@@ -16,7 +16,8 @@ class GameWorld:
     ### PUBLIC INSTANCE METHODS
     #########################################################
     def __init__(self, world_id, loading_on_server=False):
-        world_data_file = open("assets/worlds/" + world_id + ".json")
+        world_data_file = open(
+            constants.BASE_PATH + "/assets/worlds/" + world_id + ".json")
         self.__world_data = json.load(world_data_file)
         world_data_file.close()
 
@@ -154,7 +155,10 @@ class GameWorld:
                 for row in range(len(tile_layer)):
                     for col in range(len(tile_layer[0])):
                         tile_id = tile_layer[row][col]
-                        if (tile_id != constants.BLANK_ID and tile_id in self.__world_data["collidable_ids"]):
+                        if (tile_id != constants.BLANK_ID
+                            and tile_id
+                            in self.__world_data["collidable_ids"]):
+
                             tile_img = self.__tile_table[tile_id]
                             tile_rect = tile_img.get_rect()
                             tile_rect.x = col * tile_width
@@ -171,7 +175,8 @@ class GameWorld:
 
     def __load_tileset(self, loading_on_server):
         tileset_img = pygame.image.load(
-            f"assets/imgs/tilesets/{self.__world_data["tileset_id"]}.png")
+            constants.BASE_PATH
+            + f"/assets/imgs/tilesets/{self.__world_data["tileset_id"]}.png")
         if (not loading_on_server):
             tileset_img = tileset_img.convert_alpha()
         # end if
