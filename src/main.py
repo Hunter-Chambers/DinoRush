@@ -50,7 +50,7 @@ if __name__ == "__main__":
         DinoRushClient.handle_message(client, time.time())
         player = client.CONNECTION_DATA["player"]
     # end while
-    __CAMERA = Camera(__SCREEN, player._rect, world)
+    __CAMERA = Camera(player._rect, world)
     ###################################################################
 
     __GAME_IS_RUNNING = True

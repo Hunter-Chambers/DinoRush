@@ -1,6 +1,8 @@
 #############################################################
 ### IMPORTS
 #############################################################
+import constants
+
 import pygame
 
 
@@ -8,8 +10,8 @@ class Camera:
     #############################################################
     ### PUBLIC INSTANCE METHODS
     #############################################################
-    def __init__(self, screen, target_rect, world):
-        self._camera = pygame.Rect(0, 0, *screen.get_size())
+    def __init__(self, target_rect, world):
+        self._camera = pygame.Rect(0, 0, *constants.WINDOW_SIZE)
         # self._camera = pygame.Rect(0, 0, 1280, 720)
         self.__world = world
 
