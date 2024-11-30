@@ -74,7 +74,7 @@ if __name__ == "__main__":
             engine.handle_collisions(player, world)
 
             DinoRushClient.handle_message(client, current_time)
-            client.send_player_data_to_server()
+            client.send_player_data_to_server(pressed_keys)
 
             __CAMERA.update(player._rect)
 
