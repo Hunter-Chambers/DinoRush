@@ -108,7 +108,7 @@ class DinoRushServer(Server):
                 self.send_all_player_data_to_all_clients()
 
                 clock.tick(constants.FPS)
-            except KeyboardInterrupt:
+            except (KeyboardInterrupt, ConnectionResetError):
                 self.RUNNING = False
             # end try/except
         # end while

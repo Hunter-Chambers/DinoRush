@@ -81,10 +81,26 @@ class Connection:
             "This method must be implemented in a subclass!")
     # end process_player_data
 
+    def process_nak_message(self, addr, message_data):
+        buffer_window = self.__CONNECTIONS[addr]["sent_buffer_window"]
+        buffer = buffer_window["buffer"]
+
+        missing_msg_nums = message_data["nak_missing_nums"]
+        for msg_num in missing_msg_nums:
+            msg = buffer[msg_num]
+            self.__SOCKET.sendto(pickle.dumps(msg), addr)
+        # end for
+    # end process_nak_message
+
     def send_ack_message(self, ack_num, addr):
         message = {"ack_msg_num": ack_num}
         self.__SOCKET.sendto(pickle.dumps(message), addr)
     # end send_ack_message
+
+    def send_nak_message(self, missing_msg_nums, addr):
+        message = {"nak_missing_nums": missing_msg_nums}
+        self.__SOCKET.sendto(pickle.dumps(message), addr)
+    # end send_nak_message
 
     def start(self):
         raise NotImplementedError(
@@ -113,8 +129,10 @@ class Connection:
             elif ("msg_num" in message_data):
                 Connection.process_data_message(
                     connection, addr, message_data, current_time)
-            else:
+            elif ("ack_msg_num" in message_data):
                 connection.process_ack_message(addr, message_data)
+            else:
+                connection.process_nak_message(addr, message_data)
             # end if
         # end if
     # end __handle_message
@@ -146,6 +164,9 @@ class Connection:
             connection.send_ack_message(next_msg_num - 1, addr)
         elif (recv_msg_num > next_msg_num):
             buffer[recv_msg_num] = message_data
+            missing_msg_nums = [
+                num for num in range(next_msg_num, recv_msg_num)]
+            connection.send_nak_message(missing_msg_nums, addr)
         else:
             # TODO: check for wrap around
             raise NotImplementedError("NEED TO CHECK FOR WRAP-AROUND ON MESSAGE IDS")

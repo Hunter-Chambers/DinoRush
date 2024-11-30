@@ -55,41 +55,46 @@ if __name__ == "__main__":
 
     __GAME_IS_RUNNING = True
     while __GAME_IS_RUNNING:
-        current_time = time.time()
+        try:
+            current_time = time.time()
 
-        events = pygame.event.get()
+            events = pygame.event.get()
 
-        for event in events:
-            if (event.type == pygame.QUIT):
-                __GAME_IS_RUNNING = False
-            # end if
-        # end for
+            for event in events:
+                if (event.type == pygame.QUIT):
+                    __GAME_IS_RUNNING = False
+                # end if
+            # end for
 
-        pressed_keys = engine.get_pressed_keys_codes(
-            PYGAME_KEYS_TO_SERVER_CODES_MAP, pygame.key.get_pressed())
+            pressed_keys = engine.get_pressed_keys_codes(
+                PYGAME_KEYS_TO_SERVER_CODES_MAP, pygame.key.get_pressed())
 
-        world.update()
-        player.update(pressed_keys, current_time)
-        engine.handle_collisions(player, world)
+            world.update()
+            player.update(pressed_keys, current_time)
+            engine.handle_collisions(player, world)
 
-        DinoRushClient.handle_message(client, current_time)
-        client.send_player_data_to_server(pressed_keys)
+            DinoRushClient.handle_message(client, current_time)
+            client.send_player_data_to_server()
 
-        __CAMERA.update(player._rect)
+            __CAMERA.update(player._rect)
 
-        __SCREEN.fill(constants.COLOR_BLACK)
+            __SCREEN.fill(constants.COLOR_BLACK)
 
-        world.draw_background(__SCREEN, __CAMERA)
-        player.draw(__SCREEN, __CAMERA)
-        for other_player in client.OTHER_PLAYERS.values():
-            other_player.draw(__SCREEN, __CAMERA, current_time, True)
-        # end for
-        world.draw_foreground(__SCREEN, __CAMERA)
+            world.draw_background(__SCREEN, __CAMERA)
+            player.draw(__SCREEN, __CAMERA)
+            for other_player in client.OTHER_PLAYERS.values():
+                other_player.draw(__SCREEN, __CAMERA, current_time, True)
+            # end for
+            world.draw_foreground(__SCREEN, __CAMERA)
 
-        # draw_hitboxes(__SCREEN, __CAMERA, world, player)
+            # draw_hitboxes(__SCREEN, __CAMERA, world, player)
 
-        pygame.display.flip()
-        __CLOCK.tick(constants.FPS)
+            pygame.display.flip()
+            __CLOCK.tick(constants.FPS)
+        except (KeyboardInterrupt, ConnectionResetError):
+            __GAME_IS_RUNNING = False
+            client.close()
+        # end try/except
     # end while
 
     pygame.quit()
