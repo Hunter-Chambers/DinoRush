@@ -4,14 +4,12 @@
 #############################################################
 ### IMPORTS
 #############################################################
-from camera import Camera
 import constants
 import engine
 from networking.dino_rush_client import DinoRushClient
 from world.game_world import GameWorld
 
 import pygame
-import time
 
 
 ##################################################################
@@ -43,59 +41,44 @@ if __name__ == "__main__":
 
     ###################################################################
     world = GameWorld("test_world_01")
-    client = DinoRushClient(constants.SERVER_CONNECTION_INFO, world)
-    client.connect_to_server()
-    player = None
-    while (player is None):
-        DinoRushClient.handle_message(client, time.time())
-        player = client.CONNECTION_DATA["player"]
-    # end while
-    __CAMERA = Camera(player._rect, world)
+    client = DinoRushClient(world)
+    client.send_message({"INITIAL_CONNECTION": True}, constants.SERVER_CONNECTION_INFO)
     ###################################################################
 
     __GAME_IS_RUNNING = True
-    while __GAME_IS_RUNNING:
+    while (__GAME_IS_RUNNING):
         try:
-            current_time = time.time()
-
             events = pygame.event.get()
-
             for event in events:
                 if (event.type == pygame.QUIT):
                     __GAME_IS_RUNNING = False
+                    client.send_message({"CLOSING_CONNECTION": True}, constants.SERVER_CONNECTION_INFO)
+                    client.remove_client()
                 # end if
             # end for
 
-            pressed_keys = engine.get_pressed_keys_codes(
-                PYGAME_KEYS_TO_SERVER_CODES_MAP, pygame.key.get_pressed())
+            client.process_messages()
 
-            world.update()
-            player.update(pressed_keys, current_time)
-            engine.handle_collisions(player, world)
+            if (client.is_initialized()):
+                pressed_keys = engine.get_pressed_keys_codes(
+                    PYGAME_KEYS_TO_SERVER_CODES_MAP, pygame.key.get_pressed())
 
-            DinoRushClient.handle_message(client, current_time)
-            client.send_player_data_to_server(pressed_keys)
+                client.process_input(pressed_keys)
+                client.interpolate_entities()
 
-            __CAMERA.update(player._rect)
+                __SCREEN.fill(constants.COLOR_BLACK)
 
-            __SCREEN.fill(constants.COLOR_BLACK)
+                client.draw(__SCREEN)
 
-            world.draw_background(__SCREEN, __CAMERA)
-            player.draw(__SCREEN, __CAMERA)
-            for other_player in client.OTHER_PLAYERS.values():
-                other_player.draw(__SCREEN, __CAMERA, current_time, True)
-            # end for
-            world.draw_foreground(__SCREEN, __CAMERA)
+                pygame.display.flip()
+            # end if
 
-            # draw_hitboxes(__SCREEN, __CAMERA, world, player)
-
-            pygame.display.flip()
             __CLOCK.tick(constants.FPS)
-        except (KeyboardInterrupt, ConnectionResetError):
+        except (ConnectionResetError, KeyboardInterrupt):
             __GAME_IS_RUNNING = False
-            client.close()
         # end try/except
     # end while
 
+    client.close()
     pygame.quit()
 # end if

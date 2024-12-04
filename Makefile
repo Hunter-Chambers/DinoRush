@@ -29,12 +29,14 @@ _exe_target		:	src/main.py
 	--add-data "../assets/imgs/title_icon.png:assets/imgs" \
 	--add-data "../assets/players/*:assets/players" \
 	--add-data "../assets/worlds/*:assets/worlds" \
+	--add-data "../../frostiverse/networking/*.py:networking" \
 	--add-data "networking/*:networking" \
-	--add-data "player/*:player" \
+	--add-data "../../frostiverse/entities/*.py:entities" \
+	--add-data "../../frostiverse/camera.py:." \
+	--add-data "../../frostiverse/constants.py:." \
+	--add-data "../../frostiverse/engine.py:." \
 	--add-data "world/*:world" \
-	--add-data "camera.py:." \
-	--add-data "constants.py:." \
-	--add-data "engine.py:." \
+	--add-data "dino_rush_player.py:." \
 	main.py;\
 	mv dist/DinoRush.exe ../;) || true \
 	cd ..;
